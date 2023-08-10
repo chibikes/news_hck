@@ -1,5 +1,5 @@
-import requests, sys, json
-from sqlalchemy import Column, String, Integer, create_engine
+import requests, sys
+from sqlalchemy import Column, String, Integer, Boolean
 from flask_sqlalchemy import SQLAlchemy
 from settings import DB_NAME, DB_PASSWORD, DB_USER
 
@@ -25,29 +25,29 @@ initialize database with the 100 latest items
 
 """
 def init_db():
-    url = "https://hacker-news.firebaseio.com/v0/maxitem.json"
-    response = requests.get(url)
-    item_id = response.text
-    print(item_id)
-    for x in range(99):
-        try:
-            item_id = str(int(item_id) - x)
-            url = f'https://hacker-news.firebaseio.com/v0/item/{item_id}.json'
-            response = requests.get(url)
-            body = response.json()
-            new_type = body.get('type', None)
-            new_time = body.get('time', None)
-            new_score = body.get('score', None)
-            new_url = body.get('url', None)
-            new_title = body.get('title', None)
-            news = News(item_type=new_type, time=new_time, score=new_score, url=new_url, title=new_title)
-            news.insert()
-        except BaseException:
-            print(sys.exc_info())
+    item = db.session.query(News).first()
+    if item is None:
+        print("initializing database...")
+        url = "https://hacker-news.firebaseio.com/v0/maxitem.json"
+        response = requests.get(url)
+        item_id = response.text
+        for x in range(99):
+            try:
+                item_id = str(int(item_id) - x)
+                url = f'https://hacker-news.firebaseio.com/v0/item/{item_id}.json'
+                response = requests.get(url)
+                body = response.json()
+                new_type = body.get('type', None)
+                new_time = body.get('time', None)
+                new_url = body.get('url', None)
+                new_title = body.get('title', None)
+                news = News(item_type=new_type, time=new_time, is_from_api=True, url=new_url, title=new_title)
+                news.insert()
+            except BaseException:
+                print(sys.exc_info())
 
 def sync_news():
     try:
-        print("it works")
         url = "https://hacker-news.firebaseio.com/v0/maxitem.json"
         response = requests.get(url)
         item_id = response.text
@@ -56,10 +56,9 @@ def sync_news():
         body = response.json()
         new_type = body.get('type', None)
         new_time = body.get('time', None)
-        new_score = body.get('score', None)
         new_url = body.get('url', None)
         new_title = body.get('title', None)
-        news = News(item_type=new_type, time=new_time, score=new_score, url=new_url, title=new_title)
+        news = News(item_type=new_type, time=new_time, is_from_api=True, url=new_url, title=new_title)
         news.insert()
     except BaseException:
         print(sys.exc_info())
@@ -74,14 +73,14 @@ class News(db.Model):
     id = Column(Integer, primary_key=True)
     item_type = Column(String)
     time = Column(Integer)
-    score = Column(Integer)
+    is_from_api = Column(Boolean, default=True)
     url = Column(String)
     title = Column(String)
 
-    def __init__(self, item_type, time, score, url, title):
+    def __init__(self, item_type, time, is_from_api, url, title):
         self.item_type = item_type
         self.time = time
-        self.score = score
+        self.is_from_api = is_from_api
         self.url = url
         self.title = title
 
@@ -101,7 +100,7 @@ class News(db.Model):
             'id': self.id,
             'item_type': self.item_type,
             'time': self.time,
-            'score': self.score,
+            'is_from_api': self.is_from_api,
             'url': self.url,
             'title': self.title
             }
