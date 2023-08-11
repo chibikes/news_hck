@@ -16,6 +16,8 @@ class ItemsView extends Component {
         this.getItems();
       }
 
+
+
       getItems = () => {
         $.ajax({
           url: `http://localhost:5000/items?page=${this.state.page}`, //TODO: update request URL
@@ -36,6 +38,23 @@ class ItemsView extends Component {
       };
 
       render() {
+        const pageStyle = {
+            color: 'grey',
+            fontSize: '12px',
+          };
+
+        const pageBoxStyle = {
+            width: '14px',
+            height: '14px',
+            border: '1px solid black',
+            padding: '5px',
+            margin: '10px',
+        };
+
+        const footerStyle = {
+            float: 'inline',
+        };
+
         return(
             <div className='itemsView'>
                 <div className='searchBar'>
@@ -45,6 +64,14 @@ class ItemsView extends Component {
                         {this.state.items.map((item) => (
                             <Item title={item.title} url={item.url} children={item.kids}/>
                         ))}
+                </div>
+                <div className='footer' style={footerStyle}>
+                            <div className='pageBox' style={pageBoxStyle}>
+                                <div className='pageText' style={pageStyle}> 1 </div>
+                            </div>
+                            <div className='pageBox' style={pageBoxStyle}>
+                                <div className='pageText' style={pageStyle}> 2 </div>
+                            </div>
                 </div>
             </div>
         );

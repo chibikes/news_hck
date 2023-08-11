@@ -8,10 +8,10 @@ class Item extends Component {
             fontSize: '12px',
           };
         const {title, url, children, time} = this.props;
-        getTime = () => {
-            let unixTime = time;
-            var date = new Date(unix_timestamp * 1000);
-        };
+        // getTime = () => {
+        //     let unixTime = time;
+        //     var date = new Date(unix_timestamp * 1000);
+        // };
 
         return(
             <div className='ItemHolder'>
