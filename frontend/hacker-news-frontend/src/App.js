@@ -1,12 +1,17 @@
-import logo from './logo.svg';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import './App.css';
 import ItemsView from './components/ItemsView';
+import { BrowserRouter as Router, Route, Routes, useNavigate} from 'react-router-dom';
+import ItemDetail from './components/ItemDetail';
 
 function App() {
   return (
-    <div className="App">
-      <ItemsView />
-    </div>
+    <Router>
+      <Routes>
+      <Route path="/" element={<ItemsView />}/>
+      <Route path='/item/:itemid' element={<ItemDetail />}/>
+      </Routes>
+    </Router>
   );
 }
 
